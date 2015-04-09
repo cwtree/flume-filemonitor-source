@@ -22,6 +22,7 @@ import org.apache.flume.EventDrivenSource;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventBuilder;
+import org.apache.flume.instrumentation.SourceCounter;
 import org.apache.flume.source.AbstractSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,17 +31,33 @@ import com.google.common.base.Preconditions;
 
 /**
  * 
- * <p>author: chiwei</p>
+ * <p>
+ * author: chiwei
+ * </p>
  * 
- * <p>time: 2015年4月9日 上午9:27:11</p>
+ * <p>
+ * time: 2015年4月9日 上午9:27:11
+ * </p>
  * 
- * <p>version: version 1.0 </p>
+ * <p>
+ * version: version 1.0
+ * </p>
  *
- * <p>My CSDN BLOG: http://blog.csdn.net/simonchi </p>
- * <p>My GITHUB: https://github.com/cwtree </p>
- * <p>My SINA WEIBO: http://weibo.com/cwtree </p>
- * <p>My EMAIL: 719259043@qq.com </p>
- * <p>My WebChat: cwtree </p>
+ * <p>
+ * My CSDN BLOG: http://blog.csdn.net/simonchi
+ * </p>
+ * <p>
+ * My GITHUB: https://github.com/cwtree
+ * </p>
+ * <p>
+ * My SINA WEIBO: http://weibo.com/cwtree
+ * </p>
+ * <p>
+ * My EMAIL: 719259043@qq.com
+ * </p>
+ * <p>
+ * My WebChat: cwtree
+ * </p>
  *
  */
 public class FileMonitorSource extends AbstractSource implements Configurable, EventDrivenSource {
@@ -68,12 +85,15 @@ public class FileMonitorSource extends AbstractSource implements Configurable, E
 	private long lastFileSize = 0L;
 	private long nowFileSize = 0L;
 
+	private SourceCounter sourceCounter;
+
 	@Override
 	public synchronized void start() {
 		channelProcessor = getChannelProcessor();
 		executor = Executors.newSingleThreadScheduledExecutor();
 		runner = new FileMonitorThread();
 		executor.scheduleWithFixedDelay(runner, 500, 2000, TimeUnit.MILLISECONDS);
+		sourceCounter.start();
 		super.start();
 		log.debug("FileMonitorSource source started");
 	}
@@ -103,6 +123,7 @@ public class FileMonitorSource extends AbstractSource implements Configurable, E
 			log.info("Interrupted while awaiting termination", ex);
 		}
 		executor.shutdownNow();
+		sourceCounter.stop();
 		super.stop();
 		log.debug("FileMonitorSource source stopped");
 	}
@@ -126,7 +147,7 @@ public class FileMonitorSource extends AbstractSource implements Configurable, E
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
-				log.debug("Create the {} file",Constants.POSITION_FILE_NAME);
+				log.debug("Create the {} file", Constants.POSITION_FILE_NAME);
 			} catch (IOException e) {
 				log.error("Create the position.properties error", e);
 				return;
@@ -148,15 +169,24 @@ public class FileMonitorSource extends AbstractSource implements Configurable, E
 			return;
 		}
 		lastFileSize = positionValue;
+		if (sourceCounter == null) {
+			sourceCounter = new SourceCounter(getName());
+		}
 	}
 
 	/**
 	 * 
-	 * <p>author: chiwei</p>
+	 * <p>
+	 * author: chiwei
+	 * </p>
 	 * 
-	 * <p>time: 2015年4月9日 上午9:12:55</p>
+	 * <p>
+	 * time: 2015年4月9日 上午9:12:55
+	 * </p>
 	 * 
-	 * <p>version: version 1.0 </p>
+	 * <p>
+	 * version: version 1.0
+	 * </p>
 	 *
 	 */
 	class FileMonitorThread implements Runnable {
@@ -219,8 +249,10 @@ public class FileMonitorSource extends AbstractSource implements Configurable, E
 							headers.put(Constants.KEY_DATA_SIZE, String.valueOf(readDataBytesLen));
 							headers.put(Constants.KEY_DATA_LINE,
 									String.valueOf(readData.split("\n")));
+							sourceCounter.incrementEventReceivedCount();
 							channelProcessor.processEvent(EventBuilder.withBody(readDataBytes,
 									headers));
+							sourceCounter.addToEventAcceptedCount(1);
 							// channelProcessor.processEventBatch(getEventByReadData(readData));
 							log.debug("Change the next read position {}", positionValue);
 							buffer.clear();
