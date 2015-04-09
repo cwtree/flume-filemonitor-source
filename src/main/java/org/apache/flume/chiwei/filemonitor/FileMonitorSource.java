@@ -28,6 +28,15 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * 
+ * <p>author: chiwei</p>
+ * 
+ * <p>time: 2015年4月9日 上午9:12:11</p>
+ * 
+ * <p>version: version 1.0 </p>
+ *
+ */
 public class FileMonitorSource extends AbstractSource implements Configurable, EventDrivenSource {
 
 	private static final Logger log = LoggerFactory.getLogger(FileMonitorSource.class);
@@ -136,13 +145,19 @@ public class FileMonitorSource extends AbstractSource implements Configurable, E
 	}
 
 	/**
-	 * update the property value in time
 	 * 
-	 * @param prop
-	 * @param value
+	 * <p>author: chiwei</p>
+	 * 
+	 * <p>time: 2015年4月9日 上午9:12:55</p>
+	 * 
+	 * <p>version: version 1.0 </p>
+	 *
 	 */
 	class FileMonitorThread implements Runnable {
 
+		/**
+		 * a thread to check whether the file is modified
+		 */
 		@Override
 		public void run() {
 			synchronized (exeLock) {
