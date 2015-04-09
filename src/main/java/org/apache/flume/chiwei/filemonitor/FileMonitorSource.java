@@ -32,9 +32,15 @@ import com.google.common.base.Preconditions;
  * 
  * <p>author: chiwei</p>
  * 
- * <p>time: 2015年4月9日 上午9:12:11</p>
+ * <p>time: 2015年4月9日 上午9:27:11</p>
  * 
  * <p>version: version 1.0 </p>
+ *
+ * <p>My CSDN BLOG: http://blog.csdn.net/simonchi </p>
+ * <p>My GITHUB: https://github.com/cwtree </p>
+ * <p>My SINA WEIBO: http://weibo.com/cwtree </p>
+ * <p>My EMAIL: 719259043@qq.com </p>
+ * <p>My WebChat: cwtree </p>
  *
  */
 public class FileMonitorSource extends AbstractSource implements Configurable, EventDrivenSource {
