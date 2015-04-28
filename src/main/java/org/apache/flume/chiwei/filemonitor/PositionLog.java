@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 public class PositionLog {
 
 	private static final Logger log = LoggerFactory
-			.getLogger(FileMonitorSource.class);
+			.getLogger(PositionLog.class);
 	
 	private FileChannel positionFileChannel;
 	private String postionFilePath;
