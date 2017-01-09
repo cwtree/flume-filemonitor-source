@@ -272,6 +272,9 @@ public class FileMonitorSource extends AbstractSource implements Configurable, E
 								positionValue);
 						positionLog.setPosition(positionValue);
 					}
+					if (monitorFile != null) {
+						monitorFile.close();
+					}
 				}
 			}
 		}
